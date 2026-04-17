@@ -30,8 +30,7 @@ bin/
 obj/
 local.settings.json
 
-# Claude Code — 個人設定は gitignore、example のみ共有
-.claude/settings.json
+# Claude Code — settings.json はチーム共有で commit。個人オーバーライドと cache/sessions は gitignore
 .claude/settings.local.json
 .claude/cache/
 .claude/sessions/
