@@ -202,6 +202,8 @@ cp .claude/settings.local.example.json .claude/settings.local.json  # 任意
 
 詳細は [.claude/README.md](.claude/README.md) 参照。チーム共通の permissions / hooks / env が設定済みで、`ARBITER_MODE=local` が既定で入ります。
 
+UI 検証を Claude Code から直接行うための **agent-browser**（Claude Preview / Claude in Chrome MCP）と **Skills** の導入・活用パターンは [.claude/AGENT_BROWSER.md](.claude/AGENT_BROWSER.md) にまとめています。Dashboard 変更 PR はこのフローでスクリーンショット付きレビューができます。
+
 ---
 
 ## 9. 参考リンク

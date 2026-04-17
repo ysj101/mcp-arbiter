@@ -3,6 +3,8 @@
   "env": {
     "ARBITER_MODE": "local"
   },
+  "enableAllProjectMcpServers": false,
+  "enabledMcpjsonServers": ["Claude_Preview", "Claude_in_Chrome"],
   "permissions": {
     "allow": [
       "Bash(pnpm:*)",
