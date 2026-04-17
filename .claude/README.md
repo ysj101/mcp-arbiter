@@ -4,8 +4,6 @@
 
 ## セットアップ
 
-初回クローン時に特別な作業は不要です。`.claude/settings.json` は **リポジトリにそのまま commit されている** ため、Claude Code を開けば permissions / hooks / env が自動で読み込まれます。
-
 個人ごとの追加 allow や環境変数が必要になった場合のみ `.claude/settings.local.json` を **自分で作成** してください（gitignore されているため commit されません）。
 
 - `.claude/settings.json` — **プロジェクト共有（commit 済み）**。チーム共通の permissions / hooks / env。変更したい場合は PR を出してください。
