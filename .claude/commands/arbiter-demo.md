@@ -9,7 +9,7 @@ MCP Arbiter のローカル E2E デモを起動する。法廷ドラマ構成（
 
 ## 前提
 
-- `ARBITER_MODE=local` が設定されていること（`.claude/settings.example.json` で既定）
+- `ARBITER_MODE=local` が設定されていること（`.claude/settings.json` で既定）
 - `colima start` が完了していること
 - `pnpm install` 済みであること
 - `$ARGUMENTS` に `--no-docker` が含まれていれば docker compose 起動をスキップ
