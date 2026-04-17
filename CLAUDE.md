@@ -92,13 +92,19 @@ mcp-arbiter/
 
 ```bash
 pnpm install                 # 依存解決
-pnpm -r build                # 全 package ビルド
-pnpm -w lint                 # lint
-pnpm -w format               # format
+pnpm -w build                # 全 package ビルド
+pnpm -w lint                 # Biome lint
+pnpm -w lint:fix             # Biome lint 自動修正
+pnpm -w format               # Biome format 自動修正
 pnpm -w format:check         # format 検証のみ
-pnpm -w typecheck            # 型チェック
-pnpm -r test                 # 全 package テスト
+pnpm -w check                # Biome lint + format + import sort（CI と同じ）
+pnpm -w typecheck            # 全 package 型チェック (tsc --noEmit)
+pnpm -w test                 # 全 package テスト
 ```
+
+ツールチェーンは **Biome**（lint + format + import sort 統合）＋ **tsc**（typecheck）で構成。設定は [biome.json](biome.json) / [tsconfig.base.json](tsconfig.base.json) で一元管理され、各 package は `tsconfig.base.json` を extends する。
+
+VS Code では [.vscode/extensions.json](.vscode/extensions.json) の推奨拡張（Biome 公式、EditorConfig、Azure Functions、Docker など）を導入すると保存時フォーマット / import 整理が自動で走る。
 
 ### ローカル E2E（ARBITER_MODE=local）
 
