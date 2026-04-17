@@ -1,17 +1,4 @@
 {
   "$schema": "https://json.schemastore.org/mcp.json",
-  "mcpServers": {
-    "Claude_Preview": {
-      "type": "stdio",
-      "command": "npx",
-      "args": ["-y", "@anthropic-ai/claude-preview-mcp"],
-      "env": {}
-    },
-    "Claude_in_Chrome": {
-      "type": "stdio",
-      "command": "npx",
-      "args": ["-y", "@anthropic-ai/claude-chrome-mcp"],
-      "env": {}
-    }
-  }
+  "mcpServers": {}
 }
