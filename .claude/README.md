@@ -45,11 +45,19 @@
 
 サブエージェントは Claude Code から `@policy-reviewer` / `@verdict-writer` のようにメンションするか、Task Tool で `subagent_type: policy-reviewer` を指定して起動する。
 
-### agent-browser / Skills
+### `skills/` （プロジェクト共有 Skills）
+
+リポジトリに commit 済みの Skill はクローン直後から Claude Code が自動検出する。
+
+| Skill | 用途 | 出典 |
+|---|---|---|
+| [`agent-browser`](skills/agent-browser/SKILL.md) | ブラウザ自動化 CLI の呼び出しトリガー | [vercel-labs/agent-browser](https://github.com/vercel-labs/agent-browser) をミラー（Apache-2.0）。更新方針は [NOTICE.md](skills/agent-browser/NOTICE.md) 参照 |
+
+### agent-browser / Skills ガイド
 
 Vercel Labs 製のブラウザ自動化 CLI / Skill [agent-browser](https://github.com/vercel-labs/agent-browser) と、利用推奨 Skills（`agent-browser`、`frontend-design`、`simplify`、`skill-creator`）の導入・活用ガイドは [AGENT_BROWSER.md](AGENT_BROWSER.md) を参照。
 
-- agent-browser は **Skill + CLI** で提供される（MCP サーバーではない）。`npm i -g agent-browser && agent-browser install` で導入。
+- agent-browser は **Skill + CLI** で提供される（MCP サーバーではない）。Skill 本体は `skills/agent-browser/` に commit 済み。CLI 本体は `npm i -g agent-browser && agent-browser install` で各自導入。
 - `.mcp.json` は空。追加の MCP サーバーが必要になったときだけここに宣言する。
 - `settings.json` の `enabledMcpjsonServers` は空配列。`.mcp.json` に MCP サーバーを足したらここにも明示する。
 
