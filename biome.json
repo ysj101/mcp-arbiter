@@ -16,7 +16,9 @@
       "*.tsbuildinfo",
       "pnpm-lock.yaml",
       ".claude/cache",
-      ".claude/sessions"
+      ".claude/sessions",
+      "harness/report.json",
+      "harness/report.md"
     ]
   },
   "formatter": {

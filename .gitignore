@@ -38,3 +38,7 @@ local.settings.json
 # Misc
 coverage/
 .nyc_output/
+
+# Harness reports (regenerated each run)
+harness/report.md
+harness/report.json
