@@ -26,9 +26,9 @@ const hrPolicy: Policy = {
   version: 1,
 };
 
-test('DefaultDecisionEngine: rule match forces deny with judgment text', () => {
+test('DefaultDecisionEngine: rule match forces deny with judgment text', async () => {
   const engine = new DefaultDecisionEngine();
-  const verdict = engine.decide({
+  const verdict = await engine.decide({
     intent: makeIntent(),
     ruleMatches: [
       {
@@ -50,7 +50,7 @@ test('DefaultDecisionEngine: rule match forces deny with judgment text', () => {
   assert.ok(verdict.confidence >= 0.9);
 });
 
-test('DefaultDecisionEngine: rule-pass + llm deny still denies', () => {
+test('DefaultDecisionEngine: rule-pass + llm deny still denies', async () => {
   const opinions: SubAgentOpinion[] = [
     { subAgentId: 'm-hr', role: 'hr', verdict: 'deny', confidence: 0.9, rationale: 'hr leak' },
     {
@@ -62,7 +62,7 @@ test('DefaultDecisionEngine: rule-pass + llm deny still denies', () => {
     },
   ];
   const engine = new DefaultDecisionEngine();
-  const verdict = engine.decide({
+  const verdict = await engine.decide({
     intent: makeIntent(),
     ruleMatches: [],
     opinions,
@@ -75,9 +75,9 @@ test('DefaultDecisionEngine: rule-pass + llm deny still denies', () => {
   assert.ok(verdict.judgment.includes('・hr'));
 });
 
-test('DefaultDecisionEngine: allow path omits charge/policyRef', () => {
+test('DefaultDecisionEngine: allow path omits charge/policyRef', async () => {
   const engine = new DefaultDecisionEngine();
-  const verdict = engine.decide({
+  const verdict = await engine.decide({
     intent: makeIntent(),
     ruleMatches: [],
     opinions: [],

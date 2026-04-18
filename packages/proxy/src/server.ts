@@ -4,8 +4,8 @@ import { type IncomingMessage, type ServerResponse, createServer } from 'node:ht
 import {
   InMemoryPubSubAdapter,
   InMemoryStorageAdapter,
-  MockLLMAdapter,
   createAuthAdapter,
+  createLLMAdapter,
   loadConfig,
 } from '@arbiter/core';
 import type { Policy } from '@arbiter/shared-types';
@@ -21,6 +21,7 @@ const config = loadConfig();
 const auth = createAuthAdapter(config);
 const storage = new InMemoryStorageAdapter();
 const pubsub = new InMemoryPubSubAdapter();
+const llm = createLLMAdapter(config);
 
 const policiesPath =
   process.env.ARBITER_POLICIES_FILE ?? 'packages/proxy/fixtures/default-policies.json';
@@ -43,8 +44,8 @@ const loadFromFile = async (): Promise<void> => {
 const pipeline = buildPipeline({
   analyzer: new RuleBasedIntentAnalyzer(),
   policySource: new StoragePolicySource(storage),
-  consensus: new LLMConsensusEngine(new MockLLMAdapter()),
-  decision: new DefaultDecisionEngine(),
+  consensus: new LLMConsensusEngine(llm),
+  decision: new DefaultDecisionEngine(llm),
 });
 
 void FilePolicySource;
@@ -87,24 +88,31 @@ const server = createServer(async (req: IncomingMessage, res: ServerResponse) =>
     res.end(JSON.stringify({ error: 'not-found' }));
     return;
   }
-  const body = await readBody(req);
-  const result = await handleInvokeRequest(
-    {
-      auth,
-      storage,
-      pubsub,
-      pipeline,
-      ...(downstream ? { downstream } : {}),
-    },
-    {
-      method: req.method ?? 'GET',
-      url,
-      headers: req.headers as Record<string, string | string[] | undefined>,
-      body,
-    },
-  );
-  res.writeHead(result.status, { 'content-type': 'application/json' });
-  res.end(JSON.stringify(result.body));
+  try {
+    const body = await readBody(req);
+    const result = await handleInvokeRequest(
+      {
+        auth,
+        storage,
+        pubsub,
+        pipeline,
+        ...(downstream ? { downstream } : {}),
+      },
+      {
+        method: req.method ?? 'GET',
+        url,
+        headers: req.headers as Record<string, string | string[] | undefined>,
+        body,
+      },
+    );
+    res.writeHead(result.status, { 'content-type': 'application/json' });
+    res.end(JSON.stringify(result.body));
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'unknown';
+    process.stderr.write(`[arbiter-proxy] invoke failed: ${message}\n`);
+    res.writeHead(500, { 'content-type': 'application/json' });
+    res.end(JSON.stringify({ error: 'internal-error', detail: message }));
+  }
 });
 
 await loadFromFile();
@@ -126,5 +134,7 @@ process.on('SIGTERM', () => {
 });
 
 server.listen(PORT, () => {
-  process.stdout.write(`[arbiter-proxy] listening on :${PORT} (mode=${config.mode})\n`);
+  process.stdout.write(
+    `[arbiter-proxy] listening on :${PORT} (mode=${config.mode}, llm=${config.llm.backend})\n`,
+  );
 });

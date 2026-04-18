@@ -11,6 +11,46 @@ export interface LLMAdapter {
   compose(prompt: string): Promise<string>;
 }
 
+const MOCK_COMPOSE_TAG = 'ARBITER_COMPOSE_JSON_V1';
+
+interface MockComposePayload {
+  decision: 'allow' | 'deny';
+  agentId: string;
+  tool: string;
+  recipients: string;
+  ruleMatches: { policyName: string; excerpt: string }[];
+  opinions: SubAgentOpinion[];
+  charge: string;
+}
+
+const renderMockTemplate = (payload: MockComposePayload): string => {
+  const { decision, agentId, tool, recipients, ruleMatches, opinions, charge } = payload;
+  if (decision === 'deny') {
+    const evidencePart =
+      ruleMatches.length > 0
+        ? `証拠として「${ruleMatches[0]?.excerpt ?? ''}」が検出された。`
+        : '審理官の合議によりこの所作に疑義が示された。';
+    const opinionsPart = opinions
+      .filter((o) => o.verdict === 'deny')
+      .map((o) => `・${o.role}: ${o.rationale}`)
+      .join('\n');
+    return [
+      `主文: 本法廷は、エージェント ${agentId} による tool=${tool} の執行を棄却する。`,
+      `罪状: ${charge}`,
+      `事案: 宛先 ${recipients} に対する要求は本憲法第 1 条の禁を冒すものである。${evidencePart}`,
+      `審理官意見:\n${opinionsPart || '・（意見なし）'}`,
+      '以上の理由により、本件ツール実行は許可されない。',
+    ].join('\n');
+  }
+  const opinionsPart = opinions.map((o) => `・${o.role}: ${o.rationale}`).join('\n');
+  return [
+    `主文: 本法廷は、エージェント ${agentId} による tool=${tool} の執行を許可する。`,
+    `事案: 宛先 ${recipients} への要求は本憲法の禁止事項に抵触しない。`,
+    `審理官意見:\n${opinionsPart || '・（意見なし）'}`,
+    '以上の理由により、本件ツール実行は妨げられない。',
+  ].join('\n');
+};
+
 export class MockLLMAdapter implements LLMAdapter {
   async judge(request: JudgeRequest): Promise<SubAgentOpinion> {
     const { intent, role } = request;
@@ -34,6 +74,15 @@ export class MockLLMAdapter implements LLMAdapter {
   }
 
   async compose(prompt: string): Promise<string> {
+    const tagPrefix = `${MOCK_COMPOSE_TAG}\n`;
+    if (prompt.startsWith(tagPrefix)) {
+      try {
+        const payload = JSON.parse(prompt.slice(tagPrefix.length)) as MockComposePayload;
+        return renderMockTemplate(payload);
+      } catch {
+        // fall through to default response
+      }
+    }
     return `Mock response for: ${prompt.slice(0, 60)}`;
   }
 }

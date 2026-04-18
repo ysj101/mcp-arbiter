@@ -39,7 +39,7 @@ export const buildPipeline = (deps: BuildPipelineDeps): ArbiterPipeline => {
     const ruleResult = evaluateRules(intent, policies);
 
     if (ruleResult.decision === 'deny') {
-      const verdict = deps.decision.decide({
+      const verdict = await deps.decision.decide({
         intent,
         ruleMatches: ruleResult.matches,
         opinions: [],
@@ -50,7 +50,7 @@ export const buildPipeline = (deps: BuildPipelineDeps): ArbiterPipeline => {
     }
 
     const consensus = await deps.consensus.deliberate(intent);
-    const verdict = deps.decision.decide({
+    const verdict = await deps.decision.decide({
       intent,
       ruleMatches: [],
       opinions: consensus.opinions,
@@ -74,7 +74,7 @@ export const createSkeletonPipeline = (): ArbiterPipeline => {
       parameters,
       ...(traceId ? { traceId } : {}),
     });
-    const verdict = decision.decide({
+    const verdict = await decision.decide({
       intent,
       ruleMatches: [],
       opinions: [],

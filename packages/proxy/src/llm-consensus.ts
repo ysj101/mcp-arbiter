@@ -41,15 +41,15 @@ export class LLMConsensusEngine {
   async deliberate(intent: Intent): Promise<ConsensusResult> {
     const profiles = this.options.profiles ?? DEFAULT_JUDGE_PROFILES;
     const threshold = this.options.denyThreshold ?? 0.5;
-    const opinions: SubAgentOpinion[] = [];
-    for (const profile of profiles) {
-      const opinion = await this.llm.judge({
-        intent,
-        role: profile.role,
-        systemPrompt: profile.systemPrompt,
-      });
-      opinions.push(opinion);
-    }
+    const opinions: SubAgentOpinion[] = await Promise.all(
+      profiles.map((profile) =>
+        this.llm.judge({
+          intent,
+          role: profile.role,
+          systemPrompt: profile.systemPrompt,
+        }),
+      ),
+    );
     const denyCount = opinions.filter((o) => o.verdict === 'deny').length;
     const totalVoting = opinions.filter((o) => o.verdict !== 'abstain').length;
     const denyRatio = totalVoting === 0 ? 0 : denyCount / totalVoting;
