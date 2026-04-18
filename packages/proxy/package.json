@@ -12,7 +12,7 @@
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "start": "node dist/server.js",
-    "dev": "ARBITER_DOWNSTREAM_COMMAND=${ARBITER_DOWNSTREAM_COMMAND:-node} ARBITER_DOWNSTREAM_ARGS=${ARBITER_DOWNSTREAM_ARGS:-packages/mcp-tool/dist/server.js} node --import tsx src/server.ts",
+    "dev": "ARBITER_POLICIES_FILE=${ARBITER_POLICIES_FILE:-fixtures/default-policies.json} ARBITER_DOWNSTREAM_COMMAND=${ARBITER_DOWNSTREAM_COMMAND:-node} ARBITER_DOWNSTREAM_ARGS=${ARBITER_DOWNSTREAM_ARGS:-../mcp-tool/dist/server.js} node --import tsx src/server.ts",
     "test": "node --import tsx --test src/**/*.test.ts"
   },
   "dependencies": {
