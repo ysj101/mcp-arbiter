@@ -30,6 +30,8 @@ services:
 
   signalr-emulator:
     image: mcr.microsoft.com/signalr/signalr-emulator:latest
+    # signalr-emulator は linux/amd64 のみ公開。Apple Silicon では Rosetta / QEMU 越しに動かす。
+    platform: linux/amd64
     container_name: arbiter-signalr
     restart: unless-stopped
     ports:
