@@ -95,6 +95,12 @@ importers:
 
   packages/harness:
     dependencies:
+      '@arbiter/core':
+        specifier: workspace:*
+        version: link:../core
+      '@arbiter/proxy':
+        specifier: workspace:*
+        version: link:../proxy
       '@arbiter/shared-types':
         specifier: workspace:*
         version: link:../shared-types

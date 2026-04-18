@@ -21,7 +21,8 @@
     "test": "pnpm -r --if-present test",
     "dev:up": "bash scripts/dev-up.sh",
     "dev:down": "docker compose down",
-    "dev:status": "bash scripts/dev-status.sh"
+    "dev:status": "bash scripts/dev-status.sh",
+    "harness:run": "pnpm --filter @arbiter/harness run -- --markdown harness/report.md --json harness/report.json"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
