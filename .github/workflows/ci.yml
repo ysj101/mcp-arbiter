@@ -29,6 +29,9 @@ jobs:
       - name: Biome check (lint + format)
         run: pnpm -w check
 
+      - name: Build (required before typecheck for project references)
+        run: pnpm -r build
+
       - name: TypeScript typecheck
         run: pnpm -w typecheck
 
@@ -48,6 +51,9 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm -r build
 
       - name: Run tests
         run: pnpm -w test
