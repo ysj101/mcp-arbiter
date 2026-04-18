@@ -21,6 +21,11 @@ if ! docker info >/dev/null 2>&1; then
   exit 1
 fi
 
+if ! docker compose version >/dev/null 2>&1; then
+  echo "[dev-up] docker compose サブコマンドが見つかりません。'brew install docker-compose' を実行してください（Colima 構成では Compose v2 プラグインが別パッケージです）。" >&2
+  exit 1
+fi
+
 echo "[dev-up] docker compose up -d"
 docker compose up -d
 
