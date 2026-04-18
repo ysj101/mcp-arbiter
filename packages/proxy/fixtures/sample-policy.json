@@ -1,0 +1,23 @@
+{
+  "policies": [
+    {
+      "policyId": "sample-allow-internal-only",
+      "name": "社内ドメイン宛のみ許可（サンプル）",
+      "description": "コピーして使うテンプレ。toolPattern / parameterPath / operator / value を書き換え、必要なら action を allow/deny/review に変更する。",
+      "sensitiveCategories": ["exfiltration"],
+      "rules": [
+        {
+          "toolPattern": "send_email",
+          "parameterPath": "to",
+          "operator": "matches",
+          "value": "@example\\.com$"
+        }
+      ],
+      "action": "allow",
+      "enabled": true,
+      "version": 1,
+      "createdAt": "2026-04-18T00:00:00.000Z",
+      "updatedAt": "2026-04-18T00:00:00.000Z"
+    }
+  ]
+}
