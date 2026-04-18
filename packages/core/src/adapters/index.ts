@@ -1,4 +1,6 @@
 export * from './storage-adapter.js';
+export * from './cosmos-storage-adapter.js';
+export * from './storage-factory.js';
 export * from './pubsub-adapter.js';
 export * from './llm-adapter.js';
 export * from './llm-factory.js';
