@@ -17,8 +17,8 @@ down: ## docker compose を停止
 status: ## Colima / docker / compose サービスの状態を表示
 	pnpm run dev:status
 
-dev: up ## インフラ起動後、全 dev サーバー (proxy / dashboard / mcp-tool) を並行起動
-	pnpm -r --parallel --if-present dev
+dev: up build ## インフラ起動 + 全 package ビルド → proxy / dashboard を並行起動
+	pnpm --parallel --filter @arbiter/proxy --filter @arbiter/dashboard dev
 
 proxy: ## proxy を mcp-tool 接続済みで dev 起動（事前に mcp-tool を build）
 	pnpm --filter @arbiter/mcp-tool build
