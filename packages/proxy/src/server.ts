@@ -119,6 +119,91 @@ const server = createServer(async (req: IncomingMessage, res: ServerResponse) =>
     return;
   }
 
+  // GET /policies[?enabled=true|false]
+  if (pathname === '/policies' && method === 'GET') {
+    const enabledRaw = parsed.searchParams.get('enabled');
+    const query =
+      enabledRaw === 'true' ? { enabled: true } : enabledRaw === 'false' ? { enabled: false } : {};
+    const policies = await storage.listPolicies(query);
+    res.writeHead(200, { 'content-type': 'application/json' });
+    res.end(JSON.stringify({ policies }));
+    return;
+  }
+
+  // POST /policies — 新規 upsert
+  if (pathname === '/policies' && method === 'POST') {
+    const body = (await readBody(req)) as Partial<Policy> | null;
+    if (!body || !body.name || !body.action) {
+      res.writeHead(400, { 'content-type': 'application/json' });
+      res.end(JSON.stringify({ error: 'name and action are required' }));
+      return;
+    }
+    const now = new Date().toISOString();
+    const policy: Policy = {
+      policyId: body.policyId ?? `policy-${Date.now()}`,
+      name: body.name,
+      description: body.description ?? '',
+      sensitiveCategories: body.sensitiveCategories ?? [],
+      rules: body.rules ?? [],
+      ...(body.llmJudgePrompt ? { llmJudgePrompt: body.llmJudgePrompt } : {}),
+      action: body.action,
+      enabled: body.enabled ?? true,
+      createdAt: body.createdAt ?? now,
+      updatedAt: now,
+      version: (body.version ?? 0) + 1,
+    };
+    const saved = await storage.upsertPolicy(policy);
+    res.writeHead(201, { 'content-type': 'application/json' });
+    res.end(JSON.stringify({ policy: saved }));
+    return;
+  }
+
+  // GET /policies/:policyId
+  if (pathname.startsWith('/policies/') && method === 'GET') {
+    const policyId = decodeURIComponent(pathname.slice('/policies/'.length));
+    const policy = await storage.getPolicy(policyId);
+    if (!policy) {
+      res.writeHead(404, { 'content-type': 'application/json' });
+      res.end(JSON.stringify({ error: 'not-found' }));
+      return;
+    }
+    res.writeHead(200, { 'content-type': 'application/json' });
+    res.end(JSON.stringify({ policy }));
+    return;
+  }
+
+  // PUT /policies/:policyId — 既存に対して部分更新
+  if (pathname.startsWith('/policies/') && method === 'PUT') {
+    const policyId = decodeURIComponent(pathname.slice('/policies/'.length));
+    const body = (await readBody(req)) as Partial<Policy> | null;
+    const existing = await storage.getPolicy(policyId);
+    if (!existing) {
+      res.writeHead(404, { 'content-type': 'application/json' });
+      res.end(JSON.stringify({ error: 'not-found' }));
+      return;
+    }
+    const merged: Policy = {
+      ...existing,
+      ...(body ?? {}),
+      policyId,
+      updatedAt: new Date().toISOString(),
+      version: existing.version + 1,
+    };
+    const saved = await storage.upsertPolicy(merged);
+    res.writeHead(200, { 'content-type': 'application/json' });
+    res.end(JSON.stringify({ policy: saved }));
+    return;
+  }
+
+  // DELETE /policies/:policyId
+  if (pathname.startsWith('/policies/') && method === 'DELETE') {
+    const policyId = decodeURIComponent(pathname.slice('/policies/'.length));
+    await storage.deletePolicy(policyId);
+    res.writeHead(200, { 'content-type': 'application/json' });
+    res.end(JSON.stringify({ ok: true }));
+    return;
+  }
+
   // GET /events — SSE. Dashboard / CLI tail の入り口。
   if (pathname === '/events' && method === 'GET') {
     res.writeHead(200, {
