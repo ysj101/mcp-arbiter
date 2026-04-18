@@ -101,6 +101,75 @@
 
 ---
 
+## ローカル検証クイックスタート
+
+憲法（デフォルト 3 件）とダミーツール（dummy-email-mcp）が同梱されており、ゼロ設定で試せる。
+
+### 1. インフラ起動（初回のみ）
+
+```bash
+make up          # Colima + Cosmos/SignalR emulator を起動
+pnpm install
+pnpm -r build
+```
+
+### 2. Proxy + 接続ツールを起動
+
+```bash
+make proxy       # mcp-tool を build → proxy を :7071 で dev 起動（downstream 接続済み）
+```
+
+別ターミナルで疎通確認:
+
+```bash
+curl http://localhost:7071/healthz
+# => {"ok":true,"mode":"local","downstream":true}
+```
+
+> `PORT` 環境変数で待ち受けポートを変更可能。`make invoke` は 17300 を使用する。
+
+### 3. 検証手段
+
+**(a) curl で /invoke を直接叩く**
+
+```bash
+# 人事評価ドラフトを本人に送る → DENY されるはず
+curl -X POST http://localhost:7071/invoke \
+  -H 'content-type: application/json' \
+  -H 'authorization: Bearer dev-shared-secret-change-me' \
+  -d '{"tool":"send_email","parameters":{"to":"taro@example.com","subject":"人事評価ドラフト","body":"..."}}'
+```
+
+**(b) デモ 3 シナリオを一括検証**
+
+```bash
+make invoke      # proxy + mcp-tool を spawn し hr-eval=DENY / daily-standup=ALLOW / credentials-leak=DENY を自動検証
+```
+
+**(c) harness で fixture ベースの自動テスト**
+
+```bash
+make harness     # harness/report.md, harness/report.json が出力される
+```
+
+**(d) Dashboard で判決を見る**
+
+```bash
+pnpm --filter @arbiter/dashboard dev   # http://localhost:3000
+```
+
+### 4. カスタム憲法を試す
+
+```bash
+cp packages/proxy/fixtures/sample-policy.json my-policy.json
+# my-policy.json を編集
+ARBITER_POLICIES_FILE=my-policy.json make proxy
+```
+
+起動ログに `[arbiter-proxy] seeded N policies from ...` が出れば差し替え成功。
+
+---
+
 ## ドキュメント
 
 - [コンセプト概要](./docs/overview.md)
