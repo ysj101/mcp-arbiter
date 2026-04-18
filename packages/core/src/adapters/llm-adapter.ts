@@ -37,3 +37,44 @@ export class MockLLMAdapter implements LLMAdapter {
     return `Mock response for: ${prompt.slice(0, 60)}`;
   }
 }
+
+export interface AzureFoundryAgentOptions {
+  endpoint: string;
+  apiKey: string;
+  deployment: string;
+  callAgent: (request: {
+    systemPrompt: string;
+    userPrompt: string;
+  }) => Promise<{ verdict: 'allow' | 'deny' | 'abstain'; confidence: number; rationale: string }>;
+}
+
+export class AzureFoundryAgentLLMAdapter implements LLMAdapter {
+  constructor(private readonly options: AzureFoundryAgentOptions) {}
+
+  async judge(request: JudgeRequest): Promise<SubAgentOpinion> {
+    const userPrompt = JSON.stringify({
+      tool: request.intent.tool,
+      parameters: request.intent.parameters,
+      context: request.intent.extractedContext,
+    });
+    const result = await this.options.callAgent({
+      systemPrompt: request.systemPrompt,
+      userPrompt,
+    });
+    return {
+      subAgentId: `foundry-${request.role}`,
+      role: request.role,
+      verdict: result.verdict,
+      confidence: result.confidence,
+      rationale: result.rationale,
+    };
+  }
+
+  async compose(prompt: string): Promise<string> {
+    const result = await this.options.callAgent({
+      systemPrompt: 'あなたは判決文を生成する法廷書記官です。',
+      userPrompt: prompt,
+    });
+    return result.rationale;
+  }
+}
