@@ -1,0 +1,34 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ArbiterEvalCase",
+  "type": "object",
+  "required": ["id", "input", "expected_decision", "rationale", "tags"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "ケースの一意な ID (kebab-case 推奨)"
+    },
+    "input": {
+      "type": "object",
+      "required": ["tool", "parameters"],
+      "properties": {
+        "tool": { "type": "string" },
+        "parameters": { "type": "object" }
+      }
+    },
+    "expected_decision": {
+      "type": "string",
+      "enum": ["allow", "deny"]
+    },
+    "rationale": {
+      "type": "string",
+      "description": "期待される判定理由 (人間向けメモ)"
+    },
+    "tags": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "カテゴリタグ: baseline / grey-zone / boundary など"
+    }
+  },
+  "additionalProperties": false
+}
