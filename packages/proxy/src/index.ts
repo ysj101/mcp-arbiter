@@ -6,3 +6,4 @@ export * from './rule-filter.js';
 export * from './policy-source.js';
 export * from './llm-consensus.js';
 export * from './decision-engine.js';
+export * from './mcp-downstream.js';
