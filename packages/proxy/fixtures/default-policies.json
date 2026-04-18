@@ -1,0 +1,61 @@
+{
+  "policies": [
+    {
+      "policyId": "policy-hr-eval-subject",
+      "name": "人事評価情報の件名検知",
+      "description": "件名に『人事』『評価』『給与』が含まれる場合は即 DENY。",
+      "sensitiveCategories": ["hr", "salary"],
+      "rules": [
+        {
+          "toolPattern": "send_email",
+          "parameterPath": "subject",
+          "operator": "matches",
+          "value": "(人事|評価|給与|salary|confidential)"
+        }
+      ],
+      "action": "deny",
+      "enabled": true,
+      "version": 1,
+      "createdAt": "2026-04-18T00:00:00.000Z",
+      "updatedAt": "2026-04-18T00:00:00.000Z"
+    },
+    {
+      "policyId": "policy-personal-mail-domain",
+      "name": "個人メールドメイン宛送信",
+      "description": "gmail / yahoo / outlook など個人メールドメイン宛は即 DENY。",
+      "sensitiveCategories": ["exfiltration"],
+      "rules": [
+        {
+          "toolPattern": "send_email",
+          "parameterPath": "to",
+          "operator": "matches",
+          "value": "@(gmail|yahoo|hotmail|outlook|icloud)\\.com$"
+        }
+      ],
+      "action": "deny",
+      "enabled": true,
+      "version": 1,
+      "createdAt": "2026-04-18T00:00:00.000Z",
+      "updatedAt": "2026-04-18T00:00:00.000Z"
+    },
+    {
+      "policyId": "policy-credentials-in-body",
+      "name": "資格情報の平文送信",
+      "description": "API キー / パスワードらしき文字列を本文に含む送信を DENY。",
+      "sensitiveCategories": ["credentials"],
+      "rules": [
+        {
+          "toolPattern": "send_email",
+          "parameterPath": "body",
+          "operator": "matches",
+          "value": "(api[_\\- ]?key|password|xoxb-|ghp_)"
+        }
+      ],
+      "action": "deny",
+      "enabled": true,
+      "version": 1,
+      "createdAt": "2026-04-18T00:00:00.000Z",
+      "updatedAt": "2026-04-18T00:00:00.000Z"
+    }
+  ]
+}
