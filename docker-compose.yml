@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  cosmos-emulator:
+    image: mcr.microsoft.com/cosmosdb/linux/azure-cosmos-emulator:vnext-preview
+    container_name: arbiter-cosmos
+    tty: true
+    restart: unless-stopped
+    ports:
+      - '8081:8081'
+      - '10250-10255:10250-10255'
+    environment:
+      AZURE_COSMOS_EMULATOR_PARTITION_COUNT: '3'
+      AZURE_COSMOS_EMULATOR_ENABLE_DATA_PERSISTENCE: 'true'
+      AZURE_COSMOS_EMULATOR_IP_ADDRESS_OVERRIDE: 127.0.0.1
+    volumes:
+      - cosmos-data:/tmp/cosmos/appdata
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'curl',
+          '-k',
+          '-sf',
+          'https://localhost:8081/_explorer/emulator.pem',
+        ]
+      interval: 10s
+      timeout: 10s
+      retries: 30
+
+  signalr-emulator:
+    image: mcr.microsoft.com/signalr/signalr-emulator:latest
+    container_name: arbiter-signalr
+    restart: unless-stopped
+    ports:
+      - '8888:8888'
+      - '7071:7071'
+    command: ['start', '-p', '8888']
+
+volumes:
+  cosmos-data:
