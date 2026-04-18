@@ -79,13 +79,68 @@ const readBody = async (req: IncomingMessage): Promise<unknown> => {
 };
 
 const server = createServer(async (req: IncomingMessage, res: ServerResponse) => {
-  const url = req.url ?? '/';
-  if (url === '/healthz') {
+  const rawUrl = req.url ?? '/';
+  const parsed = new URL(rawUrl, `http://${req.headers.host ?? 'localhost'}`);
+  const pathname = parsed.pathname;
+  const method = req.method ?? 'GET';
+
+  if (pathname === '/healthz') {
     res.writeHead(200, { 'content-type': 'application/json' });
     res.end(JSON.stringify({ ok: true, mode: config.mode, downstream: Boolean(downstream) }));
     return;
   }
-  if (url !== '/invoke') {
+
+  // GET /verdicts[?decision=&agentId=&limit=]
+  if (pathname === '/verdicts' && method === 'GET') {
+    const decision = parsed.searchParams.get('decision');
+    const agentId = parsed.searchParams.get('agentId');
+    const limitRaw = parsed.searchParams.get('limit');
+    const verdicts = await storage.listVerdicts({
+      ...(decision === 'allow' || decision === 'deny' ? { decision } : {}),
+      ...(agentId ? { agentId } : {}),
+      ...(limitRaw ? { limit: Number(limitRaw) } : {}),
+    });
+    res.writeHead(200, { 'content-type': 'application/json' });
+    res.end(JSON.stringify({ verdicts }));
+    return;
+  }
+
+  // GET /verdicts/:verdictId
+  if (pathname.startsWith('/verdicts/') && method === 'GET') {
+    const verdictId = decodeURIComponent(pathname.slice('/verdicts/'.length));
+    const verdict = await storage.getVerdict(verdictId);
+    if (!verdict) {
+      res.writeHead(404, { 'content-type': 'application/json' });
+      res.end(JSON.stringify({ error: 'not-found' }));
+      return;
+    }
+    res.writeHead(200, { 'content-type': 'application/json' });
+    res.end(JSON.stringify({ verdict }));
+    return;
+  }
+
+  // GET /events — SSE. Dashboard / CLI tail の入り口。
+  if (pathname === '/events' && method === 'GET') {
+    res.writeHead(200, {
+      'content-type': 'text/event-stream',
+      'cache-control': 'no-cache, no-transform',
+      connection: 'keep-alive',
+    });
+    res.write(':connected\n\n');
+    const unsubscribe = pubsub.subscribe((event) => {
+      res.write(`event: ${event.type}\ndata: ${JSON.stringify(event)}\n\n`);
+    });
+    const heartbeat = setInterval(() => {
+      res.write(':heartbeat\n\n');
+    }, 15000);
+    req.on('close', () => {
+      clearInterval(heartbeat);
+      unsubscribe();
+    });
+    return;
+  }
+
+  if (pathname !== '/invoke') {
     res.writeHead(404, { 'content-type': 'application/json' });
     res.end(JSON.stringify({ error: 'not-found' }));
     return;
@@ -101,8 +156,8 @@ const server = createServer(async (req: IncomingMessage, res: ServerResponse) =>
         ...(downstream ? { downstream } : {}),
       },
       {
-        method: req.method ?? 'GET',
-        url,
+        method,
+        url: rawUrl,
         headers: req.headers as Record<string, string | string[] | undefined>,
         body,
       },

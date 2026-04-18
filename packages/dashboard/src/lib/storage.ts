@@ -7,6 +7,7 @@ import {
   loadConfig,
 } from '@arbiter/core';
 import type { Policy } from '@arbiter/shared-types';
+import { proxyGetVerdict, proxyListVerdicts } from './arbiter-proxy';
 
 type GlobalWithStorage = typeof globalThis & {
   __arbiterStorage?: StorageAdapter;
@@ -15,9 +16,9 @@ type GlobalWithStorage = typeof globalThis & {
 const g = globalThis as GlobalWithStorage;
 
 // Dashboard と Proxy は別プロセスのため InMemoryStorageAdapter を使うと状態が共有されない。
-// local モードでは Dashboard 側も Proxy と同じ fixtures をシードして、UI に既定憲法が見える状態にする。
-// Cosmos 経由 (ARBITER_USE_COSMOS=1) ならシード不要（Proxy が upsert した内容を直接読める）。
-const seedFromFixtures = async (storage: StorageAdapter): Promise<void> => {
+// 憲法は fixtures を Dashboard 側でも seed して proxy と同じ初期値を持つ。
+// 判決は runtime 生成のため、Dashboard からは Proxy の HTTP API (/verdicts) を読みに行く。
+const seedPoliciesFromFixtures = async (storage: StorageAdapter): Promise<void> => {
   const fixturePath =
     process.env.ARBITER_POLICIES_FILE ??
     resolve(process.cwd(), '..', 'proxy', 'fixtures', 'default-policies.json');
@@ -35,15 +36,29 @@ const seedFromFixtures = async (storage: StorageAdapter): Promise<void> => {
   }
 };
 
+/**
+ * 判決の読み取りだけ Proxy に委譲するラッパ。policy methods は InMemory に据え置く（fixtures seed 済）。
+ * Proxy 起動中は最新の判決が取れ、停止中は空配列を返して Dashboard を落とさない。
+ */
+const wrapWithProxyVerdicts = (inner: StorageAdapter): StorageAdapter => ({
+  listPolicies: (query) => inner.listPolicies(query),
+  getPolicy: (id) => inner.getPolicy(id),
+  upsertPolicy: (p) => inner.upsertPolicy(p),
+  deletePolicy: (id) => inner.deletePolicy(id),
+  listVerdicts: (query) => proxyListVerdicts(query),
+  getVerdict: (id) => proxyGetVerdict(id),
+  saveVerdict: (v) => inner.saveVerdict(v),
+});
+
 export const getStorage = async (): Promise<StorageAdapter> => {
   if (g.__arbiterStorage) return g.__arbiterStorage;
   if (process.env.ARBITER_USE_COSMOS === '1') {
     const config = loadConfig();
     g.__arbiterStorage = await createStorageAdapter(config);
   } else {
-    const storage = new InMemoryStorageAdapter();
-    await seedFromFixtures(storage);
-    g.__arbiterStorage = storage;
+    const inner = new InMemoryStorageAdapter();
+    await seedPoliciesFromFixtures(inner);
+    g.__arbiterStorage = wrapWithProxyVerdicts(inner);
   }
   return g.__arbiterStorage;
 };
