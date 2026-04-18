@@ -1,1 +1,2 @@
-export const MCP_TOOL_PACKAGE_NAME = '@arbiter/mcp-tool';
+export * from './email-store.js';
+export * from './tool-definition.js';

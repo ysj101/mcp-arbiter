@@ -5,14 +5,23 @@
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "bin": {
+    "dummy-email-mcp": "./dist/server.js"
+  },
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "typecheck": "tsc -p tsconfig.json --noEmit"
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "start": "node dist/server.js",
+    "dev": "node --import tsx src/server.ts",
+    "test": "node --import tsx --test src/**/*.test.ts"
   },
   "dependencies": {
-    "@arbiter/shared-types": "workspace:*"
+    "@arbiter/shared-types": "workspace:*",
+    "@modelcontextprotocol/sdk": "1.0.4"
   },
   "devDependencies": {
+    "@types/node": "22.8.0",
+    "tsx": "4.19.2",
     "typescript": "5.6.3"
   }
 }
