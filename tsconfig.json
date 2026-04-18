@@ -4,5 +4,11 @@
     "noEmit": true
   },
   "include": [],
-  "references": []
+  "references": [
+    { "path": "./packages/shared-types" },
+    { "path": "./packages/proxy" },
+    { "path": "./packages/mcp-tool" },
+    { "path": "./packages/client" },
+    { "path": "./packages/harness" }
+  ]
 }
