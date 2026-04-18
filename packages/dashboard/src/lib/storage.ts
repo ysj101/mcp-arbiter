@@ -1,13 +1,13 @@
-import { readFile } from 'node:fs/promises';
-import { resolve } from 'node:path';
+import { type StorageAdapter, createStorageAdapter, loadConfig } from '@arbiter/core';
+import type { Verdict } from '@arbiter/shared-types';
 import {
-  InMemoryStorageAdapter,
-  type StorageAdapter,
-  createStorageAdapter,
-  loadConfig,
-} from '@arbiter/core';
-import type { Policy } from '@arbiter/shared-types';
-import { proxyGetVerdict, proxyListVerdicts } from './arbiter-proxy';
+  proxyDeletePolicy,
+  proxyGetPolicy,
+  proxyGetVerdict,
+  proxyListPolicies,
+  proxyListVerdicts,
+  proxyUpsertPolicy,
+} from './arbiter-proxy';
 
 type GlobalWithStorage = typeof globalThis & {
   __arbiterStorage?: StorageAdapter;
@@ -15,39 +15,24 @@ type GlobalWithStorage = typeof globalThis & {
 
 const g = globalThis as GlobalWithStorage;
 
-// Dashboard と Proxy は別プロセスのため InMemoryStorageAdapter を使うと状態が共有されない。
-// 憲法は fixtures を Dashboard 側でも seed して proxy と同じ初期値を持つ。
-// 判決は runtime 生成のため、Dashboard からは Proxy の HTTP API (/verdicts) を読みに行く。
-const seedPoliciesFromFixtures = async (storage: StorageAdapter): Promise<void> => {
-  const fixturePath =
-    process.env.ARBITER_POLICIES_FILE ??
-    resolve(process.cwd(), '..', 'proxy', 'fixtures', 'default-policies.json');
-  try {
-    const raw = await readFile(fixturePath, 'utf8');
-    const parsed = JSON.parse(raw) as { policies: Policy[] };
-    for (const p of parsed.policies) await storage.upsertPolicy(p);
-    process.stdout.write(
-      `[dashboard] seeded ${parsed.policies.length} policies from ${fixturePath}\n`,
-    );
-  } catch (err) {
-    process.stderr.write(
-      `[dashboard] failed to seed from ${fixturePath}: ${err instanceof Error ? err.message : err}\n`,
-    );
-  }
-};
-
-/**
- * 判決の読み取りだけ Proxy に委譲するラッパ。policy methods は InMemory に据え置く（fixtures seed 済）。
- * Proxy 起動中は最新の判決が取れ、停止中は空配列を返して Dashboard を落とさない。
- */
-const wrapWithProxyVerdicts = (inner: StorageAdapter): StorageAdapter => ({
-  listPolicies: (query) => inner.listPolicies(query),
-  getPolicy: (id) => inner.getPolicy(id),
-  upsertPolicy: (p) => inner.upsertPolicy(p),
-  deletePolicy: (id) => inner.deletePolicy(id),
+// local モードでは Proxy を policy / verdict の single source of truth として扱い、
+// Dashboard 側では InMemory を持たない。Proxy が fixtures から seed した policy も、
+// arbitrate 経由で生成された verdict も、Dashboard はここから HTTP で取りに行く。
+// Proxy 未起動時はネットワーク失敗が空配列に丸め込まれて、Dashboard は "0 件" 表示のまま立つ。
+// Cloud モード / ARBITER_USE_COSMOS=1 ではこの経路は使わず Cosmos を直接読む。
+const createProxyHttpStorage = (): StorageAdapter => ({
+  listPolicies: (query) => proxyListPolicies(query),
+  getPolicy: (id) => proxyGetPolicy(id),
+  upsertPolicy: (policy) => proxyUpsertPolicy(policy),
+  deletePolicy: (id) => proxyDeletePolicy(id),
   listVerdicts: (query) => proxyListVerdicts(query),
   getVerdict: (id) => proxyGetVerdict(id),
-  saveVerdict: (v) => inner.saveVerdict(v),
+  // verdict は Proxy が /invoke 経由でしか生成しないため、Dashboard から直接 save する経路は提供しない。
+  saveVerdict: async (_v: Verdict) => {
+    throw new Error(
+      'saveVerdict is not supported from Dashboard in local mode; use POST /invoke on Proxy',
+    );
+  },
 });
 
 export const getStorage = async (): Promise<StorageAdapter> => {
@@ -56,9 +41,7 @@ export const getStorage = async (): Promise<StorageAdapter> => {
     const config = loadConfig();
     g.__arbiterStorage = await createStorageAdapter(config);
   } else {
-    const inner = new InMemoryStorageAdapter();
-    await seedPoliciesFromFixtures(inner);
-    g.__arbiterStorage = wrapWithProxyVerdicts(inner);
+    g.__arbiterStorage = createProxyHttpStorage();
   }
   return g.__arbiterStorage;
 };
