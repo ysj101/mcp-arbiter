@@ -1,1 +1,2 @@
-export const CLIENT_PACKAGE_NAME = '@arbiter/client';
+export * from './demo-agent.js';
+export * from './scenarios.js';
