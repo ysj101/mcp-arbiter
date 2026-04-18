@@ -74,5 +74,5 @@ test('handleInvokeRequest persists verdict and publishes events', async () => {
   const verdicts = await deps.storage.listVerdicts();
   assert.equal(verdicts.length, 1);
   assert.equal(verdicts[0]?.traceId, 't-1');
-  assert.deepEqual(events, ['intent.received', 'verdict.decided']);
+  assert.deepEqual(events, ['intent.received', 'policy.evaluating', 'verdict.decided']);
 });
