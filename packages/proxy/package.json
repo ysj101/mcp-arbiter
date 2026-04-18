@@ -5,15 +5,23 @@
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "bin": {
+    "arbiter-proxy": "./dist/server.js"
+  },
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "node --test dist/**/*.test.js 2>/dev/null || true"
+    "start": "node dist/server.js",
+    "dev": "node --import tsx src/server.ts",
+    "test": "node --import tsx --test src/**/*.test.ts"
   },
   "dependencies": {
+    "@arbiter/core": "workspace:*",
     "@arbiter/shared-types": "workspace:*"
   },
   "devDependencies": {
+    "@types/node": "22.8.0",
+    "tsx": "4.19.2",
     "typescript": "5.6.3"
   }
 }
