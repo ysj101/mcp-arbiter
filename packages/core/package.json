@@ -25,7 +25,8 @@
     "test": "node --import tsx --test src/**/*.test.ts"
   },
   "dependencies": {
-    "@arbiter/shared-types": "workspace:*"
+    "@arbiter/shared-types": "workspace:*",
+    "@azure/cosmos": "4.2.0"
   },
   "devDependencies": {
     "@types/node": "22.8.0",
