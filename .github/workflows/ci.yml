@@ -20,7 +20,7 @@ jobs:
 
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
-          node-version: 20
+          node-version: 22
           cache: pnpm
 
       - name: Install dependencies
@@ -28,6 +28,9 @@ jobs:
 
       - name: Biome check (lint + format)
         run: pnpm -w check
+
+      - name: Build (required before typecheck for project references)
+        run: pnpm -r build
 
       - name: TypeScript typecheck
         run: pnpm -w typecheck
@@ -43,11 +46,14 @@ jobs:
 
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
-          node-version: 20
+          node-version: 22
           cache: pnpm
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm -r build
 
       - name: Run tests
         run: pnpm -w test

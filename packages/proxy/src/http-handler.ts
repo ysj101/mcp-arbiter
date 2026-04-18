@@ -61,6 +61,11 @@ export const handleInvokeRequest = async (
   });
 
   await deps.pubsub.publish({ type: 'intent.received', intent, occurredAt: now });
+  await deps.pubsub.publish({
+    type: 'policy.evaluating',
+    intentId: intent.intentId,
+    occurredAt: new Date().toISOString(),
+  });
   await deps.storage.saveVerdict(verdict);
   await deps.pubsub.publish({
     type: 'verdict.decided',
