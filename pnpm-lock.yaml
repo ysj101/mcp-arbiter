@@ -49,6 +49,9 @@ importers:
 
   packages/dashboard:
     dependencies:
+      '@arbiter/core':
+        specifier: workspace:*
+        version: link:../core
       '@arbiter/shared-types':
         specifier: workspace:*
         version: link:../shared-types
