@@ -3,9 +3,9 @@ import { readFile } from 'node:fs/promises';
 import { type IncomingMessage, type ServerResponse, createServer } from 'node:http';
 import {
   InMemoryPubSubAdapter,
-  InMemoryStorageAdapter,
   createAuthAdapter,
   createLLMAdapter,
+  createStorageAdapter,
   loadConfig,
 } from '@arbiter/core';
 import type { Policy } from '@arbiter/shared-types';
@@ -19,7 +19,9 @@ import { FilePolicySource, StoragePolicySource } from './policy-source.js';
 
 const config = loadConfig();
 const auth = createAuthAdapter(config);
-const storage = new InMemoryStorageAdapter();
+// ARBITER_MODE=cloud または ARBITER_USE_COSMOS=1 のときは Cosmos、
+// それ以外（既定の local）は InMemory。分岐は createStorageAdapter 内部で閉じる。
+const storage = await createStorageAdapter(config);
 const pubsub = new InMemoryPubSubAdapter();
 const llm = createLLMAdapter(config);
 
