@@ -92,11 +92,14 @@ export const runHarness = async (dataset: EvalDataset, opts: RunnerOptions): Pro
   const policySource: PolicySource = {
     list: async () => opts.policies,
   };
+  // Harness は再現性を優先するため常に MockLLMAdapter を使う。
+  // Proxy 側の claude-cli 経路はデモ/手動検証用。
+  const llm = new MockLLMAdapter();
   const pipeline = buildPipeline({
     analyzer: new RuleBasedIntentAnalyzer(),
     policySource,
-    consensus: new LLMConsensusEngine(new MockLLMAdapter()),
-    decision: new DefaultDecisionEngine(),
+    consensus: new LLMConsensusEngine(llm),
+    decision: new DefaultDecisionEngine(llm),
   });
 
   const results: CaseResult[] = [];

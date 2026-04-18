@@ -1,4 +1,5 @@
 import type { ArbiterConfig } from '../config.js';
+import { ClaudeCliLLMAdapter } from './claude-cli-llm-adapter.js';
 import {
   AzureFoundryAgentLLMAdapter,
   type AzureFoundryAgentOptions,
@@ -29,5 +30,15 @@ export const createLLMAdapter = (
       callAgent: options.callAgent,
     });
   }
-  return new MockLLMAdapter();
+
+  switch (config.llm.backend) {
+    case 'mock':
+      return new MockLLMAdapter();
+    case 'claude-cli':
+      return new ClaudeCliLLMAdapter(config.llm.claudeCli);
+    default: {
+      const exhaustive: never = config.llm.backend;
+      throw new Error(`unknown ARBITER_LLM_BACKEND: ${String(exhaustive)}`);
+    }
+  }
 };

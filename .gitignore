@@ -42,3 +42,6 @@ coverage/
 # Harness reports (regenerated each run)
 harness/report.md
 harness/report.json
+
+# Local scratch / agent-browser screenshots / verdict dumps
+tmp/

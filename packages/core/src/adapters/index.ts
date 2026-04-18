@@ -5,6 +5,7 @@ export * from './pubsub-adapter.js';
 export * from './webpubsub-adapter.js';
 export * from './pubsub-factory.js';
 export * from './llm-adapter.js';
+export * from './claude-cli-llm-adapter.js';
 export * from './llm-factory.js';
 export * from './auth-adapter.js';
 export * from './auth-factory.js';
