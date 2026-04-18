@@ -1,0 +1,9 @@
+{
+  "name": "@arbiter/dashboard",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "echo \"dashboard build is bootstrapped in #12\"",
+    "typecheck": "echo \"dashboard typecheck is bootstrapped in #12\""
+  }
+}
