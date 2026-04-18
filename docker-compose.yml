@@ -15,15 +15,10 @@ services:
       AZURE_COSMOS_EMULATOR_IP_ADDRESS_OVERRIDE: 127.0.0.1
     volumes:
       - cosmos-data:/tmp/cosmos/appdata
+    # vnext-preview は HTTP で動作する（旧 Linux emulator のような自己署名 HTTPS ではない）。
+    # また /_explorer/emulator.pem は vnext では提供されないため、ルートに対して 200 を確認する。
     healthcheck:
-      test:
-        [
-          'CMD',
-          'curl',
-          '-k',
-          '-sf',
-          'https://localhost:8081/_explorer/emulator.pem',
-        ]
+      test: ['CMD', 'curl', '-sf', 'http://localhost:8081/']
       interval: 10s
       timeout: 10s
       retries: 30
