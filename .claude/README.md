@@ -1,0 +1,68 @@
+# `.claude/` — Claude Code 設定
+
+このディレクトリには MCP Arbiter プロジェクトの Claude Code 設定が格納されます。
+
+## セットアップ
+
+個人ごとの追加 allow や環境変数が必要になった場合のみ `.claude/settings.local.json` を **自分で作成** してください（gitignore されているため commit されません）。
+
+- `.claude/settings.json` — **プロジェクト共有（commit 済み）**。チーム共通の permissions / hooks / env。変更したい場合は PR を出してください。
+- `.claude/settings.local.json` — **個人オーバーライド（gitignore）**。自分だけの追加 allow や env など。必要な人だけ手で作成。
+
+## 含まれるもの
+
+### `settings.json` （プロジェクト共有設定）
+
+- `env.ARBITER_MODE=local` を既定
+- `permissions.allow` — `pnpm`, `npm`, `node`, `docker compose`, `gh`, `func`, `git`（read-only + add/commit/push/rebase 等）, `colima status`, `jq` など日常開発で頻出するコマンド
+- `permissions.ask` — `docker compose down`, `colima stop`, force push, `gh pr merge` など破壊的/共有影響のある操作
+- `permissions.deny` — `rm -rf /`, `main` への force push
+- `hooks.PreToolUse` — `deny-env-commit.sh` が `.env*` の誤 commit を拒否
+- `hooks.Stop` — `stop-reminder.sh` が起動中 docker コンテナの後片付けを促す
+
+### `hooks/`
+
+- [hooks/deny-env-commit.sh](hooks/deny-env-commit.sh) — `.env` ファイル（`.env.example` を除く）を `git add/commit` に含めようとしたら block
+- [hooks/pre-commit-check.sh](hooks/pre-commit-check.sh) — `git commit` 前に `pnpm -w check`（biome lint + format）と `pnpm -w typecheck` を走らせ、失敗なら block
+- [hooks/stop-reminder.sh](hooks/stop-reminder.sh) — セッション終了時に docker コンテナの起動を通知
+
+両スクリプトは実行ビットを立てた状態で commit されています。
+
+### `commands/` （slash コマンド）
+
+| コマンド | 用途 | 引数 |
+|---|---|---|
+| [`/arbiter-demo`](commands/arbiter-demo.md) | ローカル E2E デモを一括起動（Proxy / Dashboard / Client Agent） | `[--no-docker]` |
+| [`/policy-test`](commands/policy-test.md) | 指定ポリシーを単体検証（Intent fixture で ALLOW/DENY 確認） | `<policy-id>` |
+| [`/verdict-inspect`](commands/verdict-inspect.md) | 判決詳細を法廷カード風に整形表示 | `<verdict-id>` |
+
+### `agents/` （サブエージェント）
+
+| エージェント | 用途 |
+|---|---|
+| [`policy-reviewer`](agents/policy-reviewer.md) | ポリシー定義・LLM judge prompt・Cosmos seed をレビュー。通過 / 条件付き通過 / 差し戻しを判定。 |
+| [`verdict-writer`](agents/verdict-writer.md) | 判決文生成プロンプトの改善提案。法廷メタファ整合・説明可能性・Prompt Injection 耐性を点検。 |
+
+サブエージェントは Claude Code から `@policy-reviewer` / `@verdict-writer` のようにメンションするか、Task Tool で `subagent_type: policy-reviewer` を指定して起動する。
+
+### `skills/` （プロジェクト共有 Skills）
+
+リポジトリに commit 済みの Skill はクローン直後から Claude Code が自動検出する。
+
+| Skill | 用途 | 出典 |
+|---|---|---|
+| [`agent-browser`](skills/agent-browser/SKILL.md) | ブラウザ自動化 CLI の呼び出しトリガー | [vercel-labs/agent-browser](https://github.com/vercel-labs/agent-browser) をミラー（Apache-2.0）。更新方針は [NOTICE.md](skills/agent-browser/NOTICE.md) 参照 |
+
+### agent-browser / Skills ガイド
+
+Vercel Labs 製のブラウザ自動化 CLI / Skill [agent-browser](https://github.com/vercel-labs/agent-browser) と、利用推奨 Skills（`agent-browser`、`frontend-design`、`simplify`、`skill-creator`）の導入・活用ガイドは [AGENT_BROWSER.md](AGENT_BROWSER.md) を参照。
+
+- agent-browser は **Skill + CLI** で提供される（MCP サーバーではない）。Skill 本体は `skills/agent-browser/` に commit 済み。CLI 本体は `npm i -g agent-browser && agent-browser install` で各自導入。
+- `.mcp.json` は空。追加の MCP サーバーが必要になったときだけここに宣言する。
+- `settings.json` の `enabledMcpjsonServers` は空配列。`.mcp.json` に MCP サーバーを足したらここにも明示する。
+
+## 権限の追加方法
+
+個人用に追加 allow したいコマンドがある場合は `.claude/settings.local.json` を作成して追記してください（こちらは gitignore）。チーム共有で追加したい場合は `settings.json` に PR を出します。
+
+`/hooks` メニューで hook の有効/無効やテスト実行ができます。

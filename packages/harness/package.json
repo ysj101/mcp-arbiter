@@ -1,0 +1,27 @@
+{
+  "name": "@arbiter/harness",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "arbiter-harness": "./dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "run": "node --import tsx src/cli.ts",
+    "test": "node --import tsx --test src/**/*.test.ts"
+  },
+  "dependencies": {
+    "@arbiter/core": "workspace:*",
+    "@arbiter/proxy": "workspace:*",
+    "@arbiter/shared-types": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "22.8.0",
+    "tsx": "4.19.2",
+    "typescript": "5.6.3"
+  }
+}

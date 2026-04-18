@@ -1,0 +1,44 @@
+# Node / pnpm
+node_modules/
+.pnpm-store/
+dist/
+build/
+.next/
+.turbo/
+*.tsbuildinfo
+
+# Env
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# OS / editors
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# Azure Functions
+bin/
+obj/
+local.settings.json
+
+# Claude Code — settings.json はチーム共有で commit。個人オーバーライドと cache/sessions は gitignore
+.claude/settings.local.json
+.claude/cache/
+.claude/sessions/
+
+# Misc
+coverage/
+.nyc_output/
+
+# Harness reports (regenerated each run)
+harness/report.md
+harness/report.json
