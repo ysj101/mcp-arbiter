@@ -37,7 +37,9 @@ services:
     ports:
       - '8888:8888'
       - '7071:7071'
-    command: ['start', '-p', '8888']
+    # entrypoint が既に `asrs-emulator start -i 0.0.0.0` を渡しているので、
+    # command には追加の引数（ポート指定）のみ書く。`start` を重ねるとエラーになる。
+    command: ['-p', '8888']
 
 volumes:
   cosmos-data:
