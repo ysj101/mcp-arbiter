@@ -5,3 +5,4 @@ export * from './intent-analyzer.js';
 export * from './rule-filter.js';
 export * from './policy-source.js';
 export * from './llm-consensus.js';
+export * from './decision-engine.js';
