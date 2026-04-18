@@ -14,6 +14,7 @@ import { DefaultDecisionEngine } from './decision-engine.js';
 import { handleInvokeRequest } from './http-handler.js';
 import { RuleBasedIntentAnalyzer } from './intent-analyzer.js';
 import { LLMConsensusEngine } from './llm-consensus.js';
+import { StdioMcpDownstream } from './mcp-downstream.js';
 import { FilePolicySource, StoragePolicySource } from './policy-source.js';
 
 const config = loadConfig();
@@ -46,8 +47,18 @@ const pipeline = buildPipeline({
   decision: new DefaultDecisionEngine(),
 });
 
-// FilePolicySource is also exported for tests / other entrypoints.
 void FilePolicySource;
+
+const downstreamCommand = process.env.ARBITER_DOWNSTREAM_COMMAND;
+const downstreamArgs = process.env.ARBITER_DOWNSTREAM_ARGS?.split(' ') ?? [];
+let downstream: StdioMcpDownstream | undefined;
+
+if (downstreamCommand) {
+  downstream = new StdioMcpDownstream({
+    command: downstreamCommand,
+    args: downstreamArgs,
+  });
+}
 
 const PORT = Number(process.env.PORT ?? 7071);
 
@@ -68,7 +79,7 @@ const server = createServer(async (req: IncomingMessage, res: ServerResponse) =>
   const url = req.url ?? '/';
   if (url === '/healthz') {
     res.writeHead(200, { 'content-type': 'application/json' });
-    res.end(JSON.stringify({ ok: true, mode: config.mode }));
+    res.end(JSON.stringify({ ok: true, mode: config.mode, downstream: Boolean(downstream) }));
     return;
   }
   if (url !== '/invoke') {
@@ -78,7 +89,13 @@ const server = createServer(async (req: IncomingMessage, res: ServerResponse) =>
   }
   const body = await readBody(req);
   const result = await handleInvokeRequest(
-    { auth, storage, pubsub, pipeline },
+    {
+      auth,
+      storage,
+      pubsub,
+      pipeline,
+      ...(downstream ? { downstream } : {}),
+    },
     {
       method: req.method ?? 'GET',
       url,
@@ -91,6 +108,22 @@ const server = createServer(async (req: IncomingMessage, res: ServerResponse) =>
 });
 
 await loadFromFile();
+
+if (downstream) {
+  await downstream.start();
+  process.stdout.write(`[arbiter-proxy] downstream spawned: ${downstreamCommand}\n`);
+}
+
+const shutdown = async (): Promise<void> => {
+  await downstream?.stop();
+  server.close();
+};
+process.on('SIGINT', () => {
+  void shutdown().finally(() => process.exit(0));
+});
+process.on('SIGTERM', () => {
+  void shutdown().finally(() => process.exit(0));
+});
 
 server.listen(PORT, () => {
   process.stdout.write(`[arbiter-proxy] listening on :${PORT} (mode=${config.mode})\n`);

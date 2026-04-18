@@ -1,5 +1,6 @@
 import type { AuthAdapter, PubSubAdapter, StorageAdapter } from '@arbiter/core';
 import type { ArbiterPipeline } from './arbitrate.js';
+import type { McpDownstreamInterface } from './mcp-downstream.js';
 import { authenticate } from './middleware.js';
 
 export interface ProxyDeps {
@@ -7,6 +8,7 @@ export interface ProxyDeps {
   storage: StorageAdapter;
   pubsub: PubSubAdapter;
   pipeline: ArbiterPipeline;
+  downstream?: McpDownstreamInterface;
 }
 
 export interface HttpRequestLike {
@@ -72,6 +74,22 @@ export const handleInvokeRequest = async (
     verdict,
     occurredAt: new Date().toISOString(),
   });
+
+  if (verdict.decision === 'allow' && deps.downstream) {
+    try {
+      const toolResult = await deps.downstream.callTool(body.tool, body.parameters ?? {});
+      return { status: 200, body: { intent, verdict, toolResult } };
+    } catch (err) {
+      return {
+        status: 502,
+        body: {
+          intent,
+          verdict,
+          error: `downstream-failed: ${err instanceof Error ? err.message : 'unknown'}`,
+        },
+      };
+    }
+  }
 
   return {
     status: verdict.decision === 'allow' ? 200 : 403,
