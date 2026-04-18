@@ -22,10 +22,12 @@
     "dev:up": "bash scripts/dev-up.sh",
     "dev:down": "docker compose down",
     "dev:status": "bash scripts/dev-status.sh",
-    "harness:run": "node packages/harness/dist/cli.js --markdown harness/report.md --json harness/report.json"
+    "harness:run": "node packages/harness/dist/cli.js --markdown harness/report.md --json harness/report.json",
+    "e2e:local": "pnpm -r build && tsx scripts/e2e-local.ts"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
+    "tsx": "4.19.2",
     "typescript": "5.6.3"
   }
 }
