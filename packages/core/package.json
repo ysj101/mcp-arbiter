@@ -26,7 +26,7 @@
   },
   "dependencies": {
     "@arbiter/shared-types": "workspace:*",
-    "@azure/cosmos": "4.2.0",
+    "@azure/cosmos": "4.9.2",
     "@azure/web-pubsub": "1.1.3"
   },
   "devDependencies": {
