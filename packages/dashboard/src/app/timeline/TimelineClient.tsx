@@ -107,6 +107,7 @@ export const TimelineClient = ({ initial }: Props) => {
               <div className="mt-3 rounded border border-court-gold/20 bg-court-navy/50 p-3 text-xs text-court-ivory/80">
                 <div className="mb-1 font-medium text-court-gold-soft">証拠</div>
                 {v.evidence.map((e, idx) => (
+                  // biome-ignore lint/suspicious/noArrayIndexKey: evidence entries have no stable id from backend
                   <div key={`${v.verdictId}-ev-${idx}`}>
                     <span className="text-court-ivory/60">{e.location}:</span>{' '}
                     <span>{e.excerpt}</span>

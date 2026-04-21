@@ -1,6 +1,6 @@
+import type { Verdict } from '@arbiter/shared-types';
 import { AppShell } from '@/components/AppShell';
 import { getStorage } from '@/lib/storage';
-import type { Verdict } from '@arbiter/shared-types';
 import { PrecedentsClient } from './PrecedentsClient';
 
 export const dynamic = 'force-dynamic';

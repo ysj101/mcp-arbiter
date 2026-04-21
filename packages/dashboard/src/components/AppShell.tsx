@@ -1,7 +1,7 @@
-import { resolveAuthAdapter } from '@/lib/auth';
-import { courtTerminology } from '@/lib/terminology';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
+import { resolveAuthAdapter } from '@/lib/auth';
+import { courtTerminology } from '@/lib/terminology';
 
 interface NavItem {
   label: string;

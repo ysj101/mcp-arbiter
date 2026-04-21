@@ -1,10 +1,10 @@
 import { MockLLMAdapter } from '@arbiter/core';
 import {
+  buildPipeline,
   DefaultDecisionEngine,
   LLMConsensusEngine,
   type PolicySource,
   RuleBasedIntentAnalyzer,
-  buildPipeline,
 } from '@arbiter/proxy';
 import type { Policy } from '@arbiter/shared-types';
 import type { EvalCase, EvalDataset } from './fixture.js';

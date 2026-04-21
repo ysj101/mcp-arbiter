@@ -1,4 +1,4 @@
-import { type ChildProcess, type SpawnOptions, spawn as defaultSpawn } from 'node:child_process';
+import { type ChildProcess, spawn as defaultSpawn, type SpawnOptions } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import type { Intent, SubAgentOpinion } from '@arbiter/shared-types';
 import type { JudgeRequest, LLMAdapter } from './llm-adapter.js';

@@ -5,8 +5,7 @@
  */
 import { spawn } from 'node:child_process';
 import { once } from 'node:events';
-import { DemoAgentClient } from '@arbiter/client';
-import { DEMO_SCENARIOS } from '@arbiter/client';
+import { DEMO_SCENARIOS, DemoAgentClient } from '@arbiter/client';
 
 const PORT = Number(process.env.ARBITER_E2E_PORT ?? 17300);
 const SECRET = 'e2e-secret';

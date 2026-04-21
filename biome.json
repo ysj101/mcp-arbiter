@@ -1,24 +1,25 @@
 {
-  "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.4.12/schema.json",
   "vcs": {
     "enabled": true,
     "clientKind": "git",
     "useIgnoreFile": true
   },
   "files": {
-    "ignore": [
-      "node_modules",
-      "dist",
-      "build",
-      ".next",
-      ".turbo",
-      "coverage",
-      "*.tsbuildinfo",
-      "pnpm-lock.yaml",
-      ".claude/cache",
-      ".claude/sessions",
-      "harness/report.json",
-      "harness/report.md"
+    "includes": [
+      "**/*",
+      "!**/node_modules",
+      "!**/dist",
+      "!**/build",
+      "!**/.next",
+      "!**/.turbo",
+      "!**/coverage",
+      "!**/*.tsbuildinfo",
+      "!pnpm-lock.yaml",
+      "!.claude/cache",
+      "!.claude/sessions",
+      "!harness/report.json",
+      "!harness/report.md"
     ]
   },
   "formatter": {
@@ -34,7 +35,7 @@
       "recommended": true,
       "suspicious": {
         "noExplicitAny": "warn",
-        "noConsoleLog": "off"
+        "noConsole": "off"
       },
       "style": {
         "noNonNullAssertion": "warn",
@@ -68,11 +69,21 @@
   },
   "overrides": [
     {
-      "include": ["**/*.test.ts", "**/*.spec.ts", "packages/harness/**"],
+      "includes": ["**/*.test.ts", "**/*.spec.ts", "packages/harness/**"],
       "linter": {
         "rules": {
           "suspicious": {
             "noExplicitAny": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["**/*.css"],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noUnknownAtRules": "off"
           }
         }
       }

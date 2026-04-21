@@ -18,7 +18,7 @@ export async function GET(req: Request) {
     cache: 'no-store',
   }).catch(() => null);
 
-  if (!upstream || !upstream.ok || !upstream.body) {
+  if (!upstream?.ok || !upstream.body) {
     // Proxy 未起動でも SSE 接続は確立して、クライアント側の EventSource が無限に再接続しないようにする。
     return new Response(':proxy-unavailable\n\n', {
       status: 200,
