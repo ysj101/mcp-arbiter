@@ -1,6 +1,6 @@
+import type { Policy } from '@arbiter/shared-types';
 import { AppShell } from '@/components/AppShell';
 import { getStorage } from '@/lib/storage';
-import type { Policy } from '@arbiter/shared-types';
 import { PolicyEditorClient } from './PolicyEditorClient';
 
 export const dynamic = 'force-dynamic';

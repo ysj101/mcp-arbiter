@@ -2,8 +2,8 @@ import { strict as assert } from 'node:assert';
 import { test } from 'node:test';
 import {
   EntraIdAuthAdapter,
-  LocalBearerAuthAdapter,
   extractBearerFromHeaders,
+  LocalBearerAuthAdapter,
 } from './auth-adapter.js';
 
 test('LocalBearerAuthAdapter accepts matching secret', async () => {

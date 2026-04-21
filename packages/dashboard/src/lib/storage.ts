@@ -1,4 +1,4 @@
-import { type StorageAdapter, createStorageAdapter, loadConfig } from '@arbiter/core';
+import { createStorageAdapter, loadConfig, type StorageAdapter } from '@arbiter/core';
 import type { Verdict } from '@arbiter/shared-types';
 import {
   proxyDeletePolicy,

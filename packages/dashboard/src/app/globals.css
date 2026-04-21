@@ -14,7 +14,8 @@ body {
 }
 
 .court-card {
-  background: linear-gradient(180deg, rgba(246, 241, 228, 0.04), rgba(201, 162, 39, 0.02)),
+  background:
+    linear-gradient(180deg, rgba(246, 241, 228, 0.04), rgba(201, 162, 39, 0.02)),
     rgba(15, 29, 58, 0.9);
   border: 1px solid rgba(201, 162, 39, 0.35);
   border-radius: 0.75rem;

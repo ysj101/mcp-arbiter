@@ -1,9 +1,9 @@
 import { strict as assert } from 'node:assert';
 import { test } from 'node:test';
 import {
-  RuleBasedIntentAnalyzer,
   extractContext,
   extractRecipients,
+  RuleBasedIntentAnalyzer,
   scoreSensitivity,
   summarizeScope,
 } from './intent-analyzer.js';

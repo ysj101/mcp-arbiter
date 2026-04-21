@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 import { readFile } from 'node:fs/promises';
-import { type IncomingMessage, type ServerResponse, createServer } from 'node:http';
+import { createServer, type IncomingMessage, type ServerResponse } from 'node:http';
 import {
-  InMemoryPubSubAdapter,
   createAuthAdapter,
   createLLMAdapter,
   createStorageAdapter,
+  InMemoryPubSubAdapter,
   loadConfig,
 } from '@arbiter/core';
 import type { Policy } from '@arbiter/shared-types';
@@ -133,7 +133,7 @@ const server = createServer(async (req: IncomingMessage, res: ServerResponse) =>
   // POST /policies — 新規 upsert
   if (pathname === '/policies' && method === 'POST') {
     const body = (await readBody(req)) as Partial<Policy> | null;
-    if (!body || !body.name || !body.action) {
+    if (!body?.name || !body.action) {
       res.writeHead(400, { 'content-type': 'application/json' });
       res.end(JSON.stringify({ error: 'name and action are required' }));
       return;
