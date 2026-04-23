@@ -1,6 +1,8 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* Tailwind 4 syntax. 旧 @tailwind base; /components; /utilities; は @import 1 行に置き換え。*/
+@import "tailwindcss";
+
+/* 既存の tailwind.config.ts（theme extend の court-navy 等）を引き続き読み込む。*/
+@config "../../tailwind.config.ts";
 
 :root {
   --background: #0a142a;
