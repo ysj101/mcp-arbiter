@@ -19,7 +19,9 @@
       "!.claude/cache",
       "!.claude/sessions",
       "!harness/report.json",
-      "!harness/report.md"
+      "!harness/report.md",
+      "!packages/dashboard/next-env.d.ts",
+      "!packages/dashboard/src/app/globals.css"
     ]
   },
   "formatter": {
