@@ -33,7 +33,7 @@
     "e2e:local": "pnpm -r build && tsx scripts/e2e-local.ts"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.4.12",
+    "@biomejs/biome": "2.4.13",
     "tsx": "4.21.0",
     "typescript": "6.0.3"
   }
