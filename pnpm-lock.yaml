@@ -40,8 +40,8 @@ importers:
         specifier: workspace:*
         version: link:../shared-types
       '@azure/cosmos':
-        specifier: 4.9.2
-        version: 4.9.2(@azure/core-client@1.10.1)
+        specifier: 4.9.3
+        version: 4.9.3(@azure/core-client@1.10.1)
       '@azure/web-pubsub':
         specifier: 1.2.0
         version: 1.2.0
@@ -214,8 +214,8 @@ packages:
     resolution: {integrity: sha512-XPArKLzsvl0Hf0CaGyKHUyVgF7oDnhKoP85Xv6M4StF/1AhfORhZudHtOyf2s+FcbuQ9dPRAjB8J2KvRRMUK2A==}
     engines: {node: '>=20.0.0'}
 
-  '@azure/cosmos@4.9.2':
-    resolution: {integrity: sha512-g+n9GDm+N4iMPE3/ZfFClBvy33fE13oa60wJLKof05tEzcJF+4KsVNdjZkRNOTRBvpGGwD0CO/FGdxBuOb2+yg==}
+  '@azure/cosmos@4.9.3':
+    resolution: {integrity: sha512-AWRj+yhw1lybutNcsHJ8syxWXnTLvc3CPwwdCwG1I0I71f25ZcBkxneTeoaB3X57+xl1nO+zJKUqfm0RhpGUFA==}
     engines: {node: '>=20.0.0'}
 
   '@azure/keyvault-common@2.1.0':
@@ -1245,7 +1245,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@azure/cosmos@4.9.2(@azure/core-client@1.10.1)':
+  '@azure/cosmos@4.9.3(@azure/core-client@1.10.1)':
     dependencies:
       '@azure/abort-controller': 2.1.2
       '@azure/core-auth': 1.10.1
