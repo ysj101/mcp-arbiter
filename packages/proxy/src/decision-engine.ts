@@ -1,11 +1,12 @@
 import { type LLMAdapter, MockLLMAdapter } from '@arbiter/core';
-import type {
-  Decision,
-  Evidence,
-  Intent,
-  Policy,
-  SubAgentOpinion,
-  Verdict,
+import {
+  type Decision,
+  type Evidence,
+  generateId,
+  type Intent,
+  type Policy,
+  type SubAgentOpinion,
+  type Verdict,
 } from '@arbiter/shared-types';
 import type { RuleMatch } from './rule-filter.js';
 
@@ -125,7 +126,7 @@ export class DefaultDecisionEngine implements DecisionEngine {
 
     const confidence = ruleMatches.length > 0 ? Math.max(llmConfidence, 0.9) : llmConfidence;
     const now = new Date().toISOString();
-    const verdictId = `verdict-${now}-${Math.random().toString(36).slice(2, 10)}`;
+    const verdictId = generateId('verdict');
 
     return {
       verdictId,

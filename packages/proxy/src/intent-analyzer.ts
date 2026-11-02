@@ -1,4 +1,9 @@
-import type { Intent, IntentExtractedContext, IntentScope } from '@arbiter/shared-types';
+import {
+  generateId,
+  type Intent,
+  type IntentExtractedContext,
+  type IntentScope,
+} from '@arbiter/shared-types';
 
 export interface AnalyzeInput {
   agentId: string;
@@ -86,7 +91,7 @@ export const extractContext = (
 export class RuleBasedIntentAnalyzer implements IntentAnalyzer {
   async analyze(input: AnalyzeInput): Promise<Intent> {
     const now = new Date().toISOString();
-    const intentId = `intent-${now}-${Math.random().toString(36).slice(2, 10)}`;
+    const intentId = generateId('intent');
     const extractedContext = extractContext(input.tool, { ...input.parameters });
     return {
       intentId,
