@@ -17,6 +17,6 @@
     "test": "node --import tsx --test src/**/*.test.ts"
   },
   "devDependencies": {
-    "typescript": "6.0.3"
+    "typescript": "7.0.2"
   }
 }
